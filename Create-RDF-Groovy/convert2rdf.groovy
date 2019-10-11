@@ -165,19 +165,19 @@ for (i in 1..data.rowCount) {
 
   doi = artTitle.trim()
 
-  // the next material
-  enmIRI = "${metaNS}m$materialCounter"
-  rdf.addObjectProperty(store, enmIRI, rdfType, chebi59999)
-  rdf.addObjectProperty(store, enmIRI, "${dctNS}source" , datasetIRI)
-  rdf.addDataProperty(store, enmIRI, rdfsLabel, name)
-
-  // the components (they all have a core)
-  coreIRI = "${enmIRI}_core"
-  rdf.addObjectProperty(store, enmIRI, "${npoNS}has_part", coreIRI)
-  rdf.addObjectProperty(store, coreIRI, rdfType, "${npoNS}NPO_1597")
-
   if (newMaterial) {
     if (nanomaterials[name]) {
+      // the next material
+      enmIRI = "${metaNS}m$materialCounter"
+      rdf.addObjectProperty(store, enmIRI, rdfType, chebi59999)
+      rdf.addObjectProperty(store, enmIRI, "${dctNS}source" , datasetIRI)
+      rdf.addDataProperty(store, enmIRI, rdfsLabel, name)
+
+      // the components (they all have a core)
+      coreIRI = "${enmIRI}_core"
+      rdf.addObjectProperty(store, enmIRI, "${npoNS}has_part", coreIRI)
+      rdf.addObjectProperty(store, coreIRI, rdfType, "${npoNS}NPO_1597")
+
       if (nanomaterials[name].iri) {
         rdf.addObjectProperty(store, enmIRI, "${dctNS}type", nanomaterials[name].iri)
       }
@@ -188,123 +188,125 @@ for (i in 1..data.rowCount) {
         rdf.addDataProperty(store, smilesIRI, "${ssoNS}SIO_000300", nanomaterials[name].core.smiles)
         rdf.addDataProperty(store, smilesIRI, rdfsLabel, nanomaterials[name].core.label)
       }
+
+      if (coating) {
+        coatingComponents = coating.split(" ")
+        for (component in coatingComponents) {
+          if (coatings[component]) {
+            coatingIRI = "${enmIRI}_coating"
+            rdf.addObjectProperty(store, enmIRI, "${npoNS}has_part", coatingIRI)
+            smilesIRI = "${coatingIRI}_smiles"
+            rdf.addObjectProperty(store, coatingIRI, "${ssoNS}CHEMINF_000200", smilesIRI)
+            rdf.addObjectProperty(store, smilesIRI, rdfType, "${ssoNS}CHEMINF_000018")
+            rdf.addDataProperty(store, smilesIRI, "${ssoNS}SIO_000300", coatings[component].smiles)
+            rdf.addDataProperty(store, smilesIRI, rdfsLabel, coatings[component].label)
+          } else {
+            logMessages += "Unrecognized coating component: $component\n"
+          }
+        }
+      }
+
+      if (diameter && !diameter.contains("N/A") && !diameter.contains("(")) {
+        diameter = diameter.replace(",", ".")
+                           .replace("~", "")
+                           .trim()
+      
+        assayCount++;
+        assayIRI = "${enmIRI}_sizeAssay" + assayCount
+        measurementGroupIRI = "${enmIRI}_sizeMeasurementGroup" + assayCount
+        endpointIRI = "${measurementGroupIRI}_sizeEndpoint"
+
+        // the assay
+        rdf.addObjectProperty(store, enmIRI, "${oboNS}BFO_0000056", measurementGroupIRI)
+
+        // the measurement group
+        rdf.addObjectProperty(store, measurementGroupIRI, rdfType, "${baoNS}BAO_0000040")
+        rdf.addObjectProperty(store, measurementGroupIRI, "${oboNS}OBI_0000299", endpointIRI)
+
+        // the endpoint
+        rdf.addObjectProperty(store, endpointIRI, rdfType, "${npoNS}NPO_1539")
+        rdf.addObjectProperty(store, endpointIRI, "${oboNS}IAO_0000136", enmIRI)
+        rdf.addDataProperty(store, endpointIRI, rdfsLabel, "Diameter")
+ 
+        if (diameter.contains("-") || diameter.contains("–")) {
+          diameter = diameter.replace("–","-")
+          if (excelCorrections.containsKey(diameter.trim().toLowerCase())) {
+            logMessages += "Replaced " + diameter + " with "
+            diameter = excelCorrections.get(diameter.trim().toLowerCase())
+            logMessages += diameter + "\n"
+          }
+          rdf.addTypedDataProperty(store, endpointIRI, "${oboNS}STATO_0000035", diameter, "${xsdNS}string")
+          rdf.addDataProperty(store, endpointIRI, "${ssoNS}has-unit", "nm")
+        } else if (diameter.contains("±")) {
+          rdf.addTypedDataProperty(store, endpointIRI, "${oboNS}STATO_0000035", diameter, "${xsdNS}string")
+          rdf.addDataProperty(store, endpointIRI, "${ssoNS}has-unit", "nm")
+        } else if (diameter.trim().startsWith("<")) {
+          rdf.addTypedDataProperty(store, endpointIRI, "${oboNS}STATO_0000035", "1-$diameter", "${xsdNS}string")
+          rdf.addDataProperty(store, endpointIRI, "${ssoNS}has-unit", "nm")
+        } else if (diameter.contains("<")) {
+          logMessages += "Unrecognized diameter value: $diameter \n"
+        } else if (diameter.contains(";")) {
+          logMessages += "Unrecognized diameter value: $diameter \n"
+        } else {
+          rdf.addTypedDataProperty(store, endpointIRI, "${ssoNS}has-value", diameter, "${xsdNS}double")
+          rdf.addDataProperty(store, endpointIRI, "${ssoNS}has-unit", "nm")
+        }
+      }
+  
+      // the zeta potential
+      if (!zp) continue
+      zp = zp.replace("−", "-")
+    
+      if (zp && !zp.contains("N/A") &&  zp != "positive" && !zp.contains("(") && !zp.contains("at") &&
+          !zp.contains("-------------------")) {
+        zp = zp.replace("mV","").trim()
+        assayCount++
+        assayIRI = "${enmIRI}_zpAssay" + assayCount
+        measurementGroupIRI = "${enmIRI}_zpMeasurementGroup" + assayCount
+        endpointIRI = "${measurementGroupIRI}_zpEndpoint"
+  
+        // the assay
+        rdf.addObjectProperty(store, enmIRI, "${oboNS}BFO_0000056", measurementGroupIRI)
+  
+        // the measurement group
+        rdf.addObjectProperty(store, measurementGroupIRI, rdfType, "${baoNS}BAO_0000040")
+        rdf.addObjectProperty(store, measurementGroupIRI, "${oboNS}OBI_0000299", endpointIRI)
+  
+        // the endpoint
+        rdf.addObjectProperty(store, endpointIRI, rdfType, "${npoNS}NPO_1302")
+        rdf.addObjectProperty(store, endpointIRI, "${oboNS}IAO_0000136", enmIRI)
+        rdf.addDataProperty(store, endpointIRI, rdfsLabel, "Zeta potential")
+     
+        zp = zp.replace(",", ".")
+        zp = zp.replace("ca", "").trim()
+        zp = zp.replace("- 51.6", "-51.6").trim()
+        if (zp.substring(1).contains("-")) {
+          if (excelCorrections.containsKey(zp.trim().toLowerCase())) {
+            // print("Replaced " + zp + " with ")
+            zp = excelCorrections.get(zp.trim().toLowerCase())
+            // println(zp)
+          }
+          rdf.addTypedDataProperty(store, endpointIRI, "${oboNS}STATO_0000035", zp, "${xsdNS}string")
+          rdf.addDataProperty(store, endpointIRI, "${ssoNS}has-unit", "mV")
+        } else if (zp.contains("...")) {
+          zp = zp.replace("...","-")
+          rdf.addTypedDataProperty(store, endpointIRI, "${oboNS}STATO_0000035", zp, "${xsdNS}string")
+          rdf.addDataProperty(store, endpointIRI, "${ssoNS}has-unit", "mV")
+        } else if (zp.contains("±")) {
+          rdf.addTypedDataProperty(store, endpointIRI, "${oboNS}STATO_0000035", zp, "${xsdNS}string")
+          rdf.addDataProperty(store, endpointIRI, "${ssoNS}has-unit", "mV")
+        } else if (zp.contains("<")) {
+          logMessages += "Unrecognized zeta potential value: $zp \n"
+        } else {
+          rdf.addTypedDataProperty(store, endpointIRI, "${ssoNS}has-value", zp, "${xsdNS}double")
+          rdf.addDataProperty(store, endpointIRI, "${ssoNS}has-unit", "mV")
+        }
+      }
+
     } else {
       logMessages += "Unrecognized material type: $name\n"
+      continue
     }
-    if (coating) {
-      coatingComponents = coating.split(" ")
-      for (component in coatingComponents) {
-        if (coatings[component]) {
-          coatingIRI = "${enmIRI}_coating"
-          rdf.addObjectProperty(store, enmIRI, "${npoNS}has_part", coatingIRI)
-          smilesIRI = "${coatingIRI}_smiles"
-          rdf.addObjectProperty(store, coatingIRI, "${ssoNS}CHEMINF_000200", smilesIRI)
-          rdf.addObjectProperty(store, smilesIRI, rdfType, "${ssoNS}CHEMINF_000018")
-          rdf.addDataProperty(store, smilesIRI, "${ssoNS}SIO_000300", coatings[component].smiles)
-          rdf.addDataProperty(store, smilesIRI, rdfsLabel, coatings[component].label)
-        } else {
-          logMessages += "Unrecognized coating component: $component\n"
-        }
-      }
-    }
-
-    if (diameter && !diameter.contains("N/A") && !diameter.contains("(")) {
-      diameter = diameter.replace(",", ".")
-                         .replace("~", "")
-                         .trim()
-      
-      assayCount++;
-      assayIRI = "${enmIRI}_sizeAssay" + assayCount
-      measurementGroupIRI = "${enmIRI}_sizeMeasurementGroup" + assayCount
-      endpointIRI = "${measurementGroupIRI}_sizeEndpoint"
-
-        // the assay
-        rdf.addObjectProperty(store, enmIRI, "${oboNS}BFO_0000056", measurementGroupIRI)
-
-      // the measurement group
-      rdf.addObjectProperty(store, measurementGroupIRI, rdfType, "${baoNS}BAO_0000040")
-      rdf.addObjectProperty(store, measurementGroupIRI, "${oboNS}OBI_0000299", endpointIRI)
-
-      // the endpoint
-      rdf.addObjectProperty(store, endpointIRI, rdfType, "${npoNS}NPO_1539")
-      rdf.addObjectProperty(store, endpointIRI, "${oboNS}IAO_0000136", enmIRI)
-      rdf.addDataProperty(store, endpointIRI, rdfsLabel, "Diameter")
- 
-      if (diameter.contains("-") || diameter.contains("–")) {
-        diameter = diameter.replace("–","-")
-        if (excelCorrections.containsKey(diameter.trim().toLowerCase())) {
-          logMessages += "Replaced " + diameter + " with "
-          diameter = excelCorrections.get(diameter.trim().toLowerCase())
-          logMessages += diameter + "\n"
-        }
-        rdf.addTypedDataProperty(store, endpointIRI, "${oboNS}STATO_0000035", diameter, "${xsdNS}string")
-        rdf.addDataProperty(store, endpointIRI, "${ssoNS}has-unit", "nm")
-      } else if (diameter.contains("±")) {
-        rdf.addTypedDataProperty(store, endpointIRI, "${oboNS}STATO_0000035", diameter, "${xsdNS}string")
-        rdf.addDataProperty(store, endpointIRI, "${ssoNS}has-unit", "nm")
-      } else if (diameter.trim().startsWith("<")) {
-        rdf.addTypedDataProperty(store, endpointIRI, "${oboNS}STATO_0000035", "1-$diameter", "${xsdNS}string")
-        rdf.addDataProperty(store, endpointIRI, "${ssoNS}has-unit", "nm")
-      } else if (diameter.contains("<")) {
-        logMessages += "Unrecognized diameter value: $diameter \n"
-      } else if (diameter.contains(";")) {
-        logMessages += "Unrecognized diameter value: $diameter \n"
-      } else {
-        rdf.addTypedDataProperty(store, endpointIRI, "${ssoNS}has-value", diameter, "${xsdNS}double")
-        rdf.addDataProperty(store, endpointIRI, "${ssoNS}has-unit", "nm")
-      }
-    }
-  
-    // the zeta potential
-    if (!zp) continue
-    zp = zp.replace("−", "-")
-    
-    if (zp && !zp.contains("N/A") &&  zp != "positive" && !zp.contains("(") && !zp.contains("at") &&
-        !zp.contains("-------------------")) {
-      zp = zp.replace("mV","").trim()
-      assayCount++
-      assayIRI = "${enmIRI}_zpAssay" + assayCount
-      measurementGroupIRI = "${enmIRI}_zpMeasurementGroup" + assayCount
-      endpointIRI = "${measurementGroupIRI}_zpEndpoint"
-  
-        // the assay
-        rdf.addObjectProperty(store, enmIRI, "${oboNS}BFO_0000056", measurementGroupIRI)
-  
-      // the measurement group
-      rdf.addObjectProperty(store, measurementGroupIRI, rdfType, "${baoNS}BAO_0000040")
-      rdf.addObjectProperty(store, measurementGroupIRI, "${oboNS}OBI_0000299", endpointIRI)
-  
-      // the endpoint
-      rdf.addObjectProperty(store, endpointIRI, rdfType, "${npoNS}NPO_1302")
-      rdf.addObjectProperty(store, endpointIRI, "${oboNS}IAO_0000136", enmIRI)
-      rdf.addDataProperty(store, endpointIRI, rdfsLabel, "Zeta potential")
-     
-      zp = zp.replace(",", ".")
-      zp = zp.replace("ca", "").trim()
-      zp = zp.replace("- 51.6", "-51.6").trim()
-      if (zp.substring(1).contains("-")) {
-        if (excelCorrections.containsKey(zp.trim().toLowerCase())) {
-          // print("Replaced " + zp + " with ")
-          zp = excelCorrections.get(zp.trim().toLowerCase())
-          // println(zp)
-        }
-        rdf.addTypedDataProperty(store, endpointIRI, "${oboNS}STATO_0000035", zp, "${xsdNS}string")
-        rdf.addDataProperty(store, endpointIRI, "${ssoNS}has-unit", "mV")
-      } else if (zp.contains("...")) {
-        zp = zp.replace("...","-")
-        rdf.addTypedDataProperty(store, endpointIRI, "${oboNS}STATO_0000035", zp, "${xsdNS}string")
-        rdf.addDataProperty(store, endpointIRI, "${ssoNS}has-unit", "mV")
-      } else if (zp.contains("±")) {
-        rdf.addTypedDataProperty(store, endpointIRI, "${oboNS}STATO_0000035", zp, "${xsdNS}string")
-        rdf.addDataProperty(store, endpointIRI, "${ssoNS}has-unit", "mV")
-      } else if (zp.contains("<")) {
-        logMessages += "Unrecognized zeta potential value: $zp \n"
-      } else {
-        rdf.addTypedDataProperty(store, endpointIRI, "${ssoNS}has-value", zp, "${xsdNS}double")
-        rdf.addDataProperty(store, endpointIRI, "${ssoNS}has-unit", "mV")
-      }
-    }
-
   }
 
 }
