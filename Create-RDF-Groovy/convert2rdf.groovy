@@ -205,11 +205,14 @@ for (i in 1..500) {
 
       if (coating) {
         coatingComponents = coating.split(" ")
+        coatingCounter = 0
         for (component in coatingComponents) {
           if (coatings[component]) {
-            coatingIRI = "${enmIRI}_coating"
+            coatingCounter++
+            coatingIRI = "${enmIRI}_coating${coatingCounter}"
             rdf.addObjectProperty(store, enmIRI, "${npoNS}has_part", coatingIRI)
             smilesIRI = "${coatingIRI}_smiles"
+            rdf.addObjectProperty(store, coatingIRI, rdfType, "${npoNS}NPO_1367")
             rdf.addObjectProperty(store, coatingIRI, "${ssoNS}CHEMINF_000200", smilesIRI)
             rdf.addObjectProperty(store, smilesIRI, rdfType, "${ssoNS}CHEMINF_000018")
             rdf.addDataProperty(store, smilesIRI, "${ssoNS}SIO_000300", coatings[component].smiles)
