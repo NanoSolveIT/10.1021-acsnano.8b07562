@@ -218,11 +218,8 @@ for (i in 1..data.rowCount) {
       measurementGroupIRI = "${enmIRI}_sizeMeasurementGroup" + assayCount
       endpointIRI = "${measurementGroupIRI}_sizeEndpoint"
 
-      // the assay
-      // rdf.addObjectProperty(store, assayIRI, rdfType, "${baoNS}BAO_0000015")
-      // rdf.addDataProperty(store, assayIRI, "${dcNS}title", "Diameter Assay")
-      // rdf.addObjectProperty(store, assayIRI, "${baoNS}BAO_0000209", measurementGroupIRI)
-      rdf.addObjectProperty(store, enmIRI, "${oboNS}BFO_0000056", measurementGroupIRI)
+        // the assay
+        rdf.addObjectProperty(store, enmIRI, "${oboNS}BFO_0000056", measurementGroupIRI)
 
       // the measurement group
       rdf.addObjectProperty(store, measurementGroupIRI, rdfType, "${baoNS}BAO_0000040")
@@ -270,11 +267,8 @@ for (i in 1..data.rowCount) {
       measurementGroupIRI = "${enmIRI}_zpMeasurementGroup" + assayCount
       endpointIRI = "${measurementGroupIRI}_zpEndpoint"
   
-      // the assay
-      // rdf.addObjectProperty(store, assayIRI, rdfType, "${baoNS}BAO_0000015")
-      // rdf.addDataProperty(store, assayIRI, "${dcNS}title", "Zeta potential")
-      // rdf.addObjectProperty(store, assayIRI, "${baoNS}BAO_0000209", measurementGroupIRI)
-      rdf.addObjectProperty(store, enmIRI, "${oboNS}BFO_0000056", measurementGroupIRI)
+        // the assay
+        rdf.addObjectProperty(store, enmIRI, "${oboNS}BFO_0000056", measurementGroupIRI)
   
       // the measurement group
       rdf.addObjectProperty(store, measurementGroupIRI, rdfType, "${baoNS}BAO_0000040")
