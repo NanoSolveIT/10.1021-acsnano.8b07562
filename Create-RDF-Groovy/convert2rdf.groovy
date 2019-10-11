@@ -245,6 +245,8 @@ for (i in 1..500) {
         rdf.addObjectProperty(store, endpointIRI, rdfType, "${npoNS}NPO_1539")
         rdf.addObjectProperty(store, endpointIRI, "${oboNS}IAO_0000136", enmIRI)
         rdf.addDataProperty(store, endpointIRI, rdfsLabel, "Diameter")
+        if (doi.startsWith("10."))
+          rdf.addObjectProperty(store, endpointIRI, "${citoNS}usesDataFrom", "https://doi.org/${doi}")
  
         if (diameter.contains("-") || diameter.contains("–")) {
           diameter = diameter.replace("–","-")
@@ -298,6 +300,9 @@ for (i in 1..500) {
         rdf.addObjectProperty(store, endpointIRI, rdfType, "${npoNS}NPO_1302")
         rdf.addObjectProperty(store, endpointIRI, "${oboNS}IAO_0000136", enmIRI)
         rdf.addDataProperty(store, endpointIRI, rdfsLabel, "Zeta potential")
+        if (doi.startsWith("10."))
+          rdf.addObjectProperty(store, endpointIRI, "${citoNS}usesDataFrom", "https://doi.org/${doi}")
+
      
         zp = zp.replace(",", ".")
         zp = zp.replace("ca", "").trim()
