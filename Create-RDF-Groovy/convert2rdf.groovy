@@ -19,7 +19,7 @@ dcNS = "http://purl.org/dc/elements/1.1/"
 dctNS = "http://purl.org/dc/terms/"
 doiNS = "https://doi.org/"
 enmNS = "http://purl.enanomapper.org/onto/"
-etoxNS = "http://egonw.github.com/enmrdf/nanoe-tox/"
+metaNS = "http://egonw.github.com/enmrdf/meta-analysis/"
 npoNS = "http://purl.bioontology.org/ontology/npo#"
 oboNS = "http://purl.obolibrary.org/obo/"
 ssoNS = "http://semanticscience.org/resource/"
@@ -38,20 +38,67 @@ rdf.addPrefix(store, "cito", citoNS)
 rdf.addPrefix(store, "dc", dcNS)
 rdf.addPrefix(store, "dct", dctNS)
 rdf.addPrefix(store, "enm", enmNS)
-rdf.addPrefix(store, "etox", etoxNS)
+rdf.addPrefix(store, "meta", metaNS)
 rdf.addPrefix(store, "npo", npoNS)
 rdf.addPrefix(store, "obo", oboNS)
 rdf.addPrefix(store, "sso", ssoNS)
 rdf.addPrefix(store, "void", voidNS)
 
 nanomaterials = [
+  "Ag" : [
+    iri : "http://purl.bioontology.org/ontology/npo#NPO_1384",
+    core : [ label : "silver", smiles : "[Ag]" ]
+  ],
+  "Al2O3" : [
+    iri: "http://purl.enanomapper.org/onto/ENM_9000005",
+    core : [ label : "Al2O3" ]
+  ],
+  "Au" : [
+    iri : "http://purl.bioontology.org/ontology/npo#NPO_401",
+    core : [ label : "silver", smiles : "[Au]" ]
+  ],
   "CeO2" : [
     iri : "http://purl.enanomapper.org/onto/ENM_9000006",
     core : [ label : "CeO2", smiles : "O=[Ce]=O" ]
   ],
+  "Chitosan" : [
+    iri : "http://purl.bioontology.org/ontology/npo#NPO_261"
+  ],
   "CuO" : [
     iri : "http://purl.bioontology.org/ontology/npo#NPO_1544",
     core : [ label : "CuO", smiles : "[Cu]=O" ]
+  ],
+  "Cu2O" : [
+    iri : "iri http://purl.obolibrary.org/obo/CHEBI_134402",
+    core : [ label : "Cu2O", smiles : "[Cu]O[Cu]" ]
+  ],
+  "Carbon Nanotubes" : [
+    iri : "http://purl.bioontology.org/ontology/npo#NPO_943",
+    core : [ label : "carbon", smiles : "[C]" ]
+  ],
+  "Hydroxyapatite" : [
+    iri : "http://purl.bioontology.org/ontology/npo#NPO_1568"
+  ],
+  "Iron oxide" : [
+    iri : "http://purl.bioontology.org/ontology/npo#NPO_729",
+    core : [ label : "iron oxide" ]
+  ],
+  "Liposomes" : [
+    iri: "http://purl.bioontology.org/ontology/npo#NPO_719"
+  ],
+  "Polystyrene" : [
+    iri: "http://purl.enanomapper.org/onto/ENM_9000008"
+  ],
+  "QDs" : [
+    iri : "http://purl.bioontology.org/ontology/npo#NPO_589",
+  ],
+  "SiO2" : [
+    iri : "http://purl.bioontology.org/ontology/npo#NPO_1373",
+    core : [ label : "SiO2", smiles : "O=[Si]=O" ]
+  ],
+  "TiO2" : [
+    iri : "http://purl.obolibrary.org/obo/CHEBI_51050",
+    core : [ label : "TiO2", smiles : "O=[Ti]=O" ]
   ],
   "ZnO" : [
     iri : "http://purl.bioontology.org/ontology/npo#NPO_1542",
@@ -59,8 +106,26 @@ nanomaterials = [
   ]
 ]
 
+coatings = [
+  "l-cysteine" : [
+    label : "l-cysteine",
+    smiles : "N[C@@H](CS)C(O)=O"
+  ],
+  "l-lysine" : [
+    label : "l-lysine",
+    smiles : "NCCCC[C@H](N)C(O)=O"
+  ],
+  "COOH" : [
+    label : "COOH",
+    smiles : "C(=O)O"
+  ],
+  "Citrate" : [
+    label : "citrate",
+    smiles : "C(C(=O)O)C(CC(=O)O)(C(=O)O)O"
+  ]
+]
 
-datasetIRI = "${etoxNS}dataset"
+datasetIRI = "${metaNS}dataset"
 rdf.addObjectProperty(store, datasetIRI, rdfType, "${voidNS}Dataset")
 rdf.addDataProperty(store, datasetIRI, "${dctNS}title", "Meta-Analysis RDF")
 rdf.addDataProperty(store, datasetIRI, "${dctNS}description", "RDF version of the data from ACS Nano. 2019, 21:2, 1583-1594. doi:10.1021/ACSNANO.8B07562.")
@@ -74,8 +139,10 @@ data = excel.getSheet(inputFilename, 0, true)
 for (i in 1..data.rowCount) {
   newMaterial = false
   
-  // the name
+  // the nanomaterial
   name = data.get(i, "Nanoparticle")
+  coating = data.get(i, "coat")
+
   // the diameter
   diameter = data.get(i, "Diameter (nm)")
   // the zeta potential
@@ -85,7 +152,8 @@ for (i in 1..data.rowCount) {
   artTitle = data.get(i, "Reference DOI")
 
   // unique id
-  uniqueKey = data.get(i, "Particle ID")
+  if (data.get(i, "Particle ID") == "") continue
+  uniqueKey = Double.valueOf(data.get(i, "Particle ID")).intValue()
 
   if (materials.containsKey(uniqueKey)) {
     materialCounter = materials.get(uniqueKey)
@@ -98,7 +166,7 @@ for (i in 1..data.rowCount) {
   doi = artTitle.trim()
 
   // the next material
-  enmIRI = "${etoxNS}m$materialCounter"
+  enmIRI = "${metaNS}m$materialCounter"
   rdf.addObjectProperty(store, enmIRI, rdfType, chebi59999)
   rdf.addObjectProperty(store, enmIRI, "${dctNS}source" , datasetIRI)
   rdf.addDataProperty(store, enmIRI, rdfsLabel, name)
@@ -112,8 +180,6 @@ for (i in 1..data.rowCount) {
     if (nanomaterials[name]) {
       if (nanomaterials[name].iri) {
         rdf.addObjectProperty(store, enmIRI, "${dctNS}type", nanomaterials[name].iri)
-      } else {
-        logMessages += "Unrecognized material type: $name\n"
       }
       if (nanomaterials[name].core && nanomaterials[name].core.smiles) {
         smilesIRI = "${coreIRI}_smiles"
@@ -122,17 +188,24 @@ for (i in 1..data.rowCount) {
         rdf.addDataProperty(store, smilesIRI, "${ssoNS}SIO_000300", nanomaterials[name].core.smiles)
         rdf.addDataProperty(store, smilesIRI, rdfsLabel, nanomaterials[name].core.label)
       }
-      if (nanomaterials[name].coating) {
-        coatingIRI = "${enmIRI}_coating"
-        rdf.addObjectProperty(store, enmIRI, "${npoNS}has_part", coatingIRI)
-        smilesIRI = "${coatingIRI}_smiles"
-        rdf.addObjectProperty(store, coatingIRI, "${ssoNS}CHEMINF_000200", smilesIRI)
-        rdf.addObjectProperty(store, smilesIRI, rdfType, "${ssoNS}CHEMINF_000018")
-        rdf.addDataProperty(store, smilesIRI, "${ssoNS}SIO_000300", nanomaterials[name].coating.smiles)
-        rdf.addDataProperty(store, smilesIRI, rdfsLabel, nanomaterials[name].coating.label)
-      }
     } else {
       logMessages += "Unrecognized material type: $name\n"
+    }
+    if (coating) {
+      coatingComponents = coating.split(" ")
+      for (component in coatingComponents) {
+        if (coatings[component]) {
+          coatingIRI = "${enmIRI}_coating"
+          rdf.addObjectProperty(store, enmIRI, "${npoNS}has_part", coatingIRI)
+          smilesIRI = "${coatingIRI}_smiles"
+          rdf.addObjectProperty(store, coatingIRI, "${ssoNS}CHEMINF_000200", smilesIRI)
+          rdf.addObjectProperty(store, smilesIRI, rdfType, "${ssoNS}CHEMINF_000018")
+          rdf.addDataProperty(store, smilesIRI, "${ssoNS}SIO_000300", coatings[component].smiles)
+          rdf.addDataProperty(store, smilesIRI, rdfsLabel, coatings[component].label)
+        } else {
+          logMessages += "Unrecognized coating component: $component\n"
+        }
+      }
     }
 
     if (diameter && !diameter.contains("N/A") && !diameter.contains("(")) {
