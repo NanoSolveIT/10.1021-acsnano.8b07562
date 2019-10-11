@@ -25,8 +25,10 @@ oboNS = "http://purl.obolibrary.org/obo/"
 ssoNS = "http://semanticscience.org/resource/"
 voidNS = "http://rdfs.org/ns/void#"
 xsdNS = "http://www.w3.org/2001/XMLSchema#"
+owlNS = "http://www.w3.org/2002/07/owl#"
 
 materials = new java.util.HashMap()
+articles = new java.util.HashSet()
 
 rdfType = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
 rdfsLabel = "http://www.w3.org/2000/01/rdf-schema#label"
@@ -41,6 +43,7 @@ rdf.addPrefix(store, "enm", enmNS)
 rdf.addPrefix(store, "meta", metaNS)
 rdf.addPrefix(store, "npo", npoNS)
 rdf.addPrefix(store, "obo", oboNS)
+rdf.addPrefix(store, "owl", owlNS)
 rdf.addPrefix(store, "sso", ssoNS)
 rdf.addPrefix(store, "void", voidNS)
 
@@ -135,8 +138,10 @@ rdf.addObjectProperty(store, datasetIRI, "${dctNS}license", "https://creativecom
 assayCount = 0;
 toxCount = 0;
 citations = 0;
+articleCounter = 0
 data = excel.getSheet(inputFilename, 0, true)
-for (i in 1..data.rowCount) {
+//for (i in 1..data.rowCount) {
+for (i in 1..500) {
   newMaterial = false
   
   // the nanomaterial
@@ -162,8 +167,17 @@ for (i in 1..data.rowCount) {
     materialCounter = uniqueKey;
     materials.put(uniqueKey, uniqueKey);
   }
-
+  
   doi = artTitle.trim()
+  if (!articles.contains(doi)) {
+    if (doi.startsWith("10.")) {
+      articleCounter++
+      articles.add(doi)
+      artIRI = "${metaNS}ref$articleCounter"
+      rdf.addDataProperty(store, artIRI, "${dcNS}title" , doi)
+      rdf.addObjectProperty(store, artIRI, "${owlNS}sameAs" , "https://doi.org/${doi}")
+    }
+  }
 
   if (newMaterial) {
     if (nanomaterials[name]) {
@@ -217,6 +231,10 @@ for (i in 1..data.rowCount) {
         endpointIRI = "${measurementGroupIRI}_sizeEndpoint"
 
         // the assay
+        rdf.addObjectProperty(store, assayIRI, rdfType, "${baoNS}BAO_0000015")
+        rdf.addDataProperty(store, assayIRI, "${dcNS}title", "Diameter Assay")
+        rdf.addObjectProperty(store, assayIRI, "${baoNS}BAO_0000209", measurementGroupIRI)
+        rdf.addObjectProperty(store, assayIRI, "${dctNS}source", artIRI)
         rdf.addObjectProperty(store, enmIRI, "${oboNS}BFO_0000056", measurementGroupIRI)
 
         // the measurement group
@@ -266,6 +284,10 @@ for (i in 1..data.rowCount) {
         endpointIRI = "${measurementGroupIRI}_zpEndpoint"
   
         // the assay
+        rdf.addObjectProperty(store, assayIRI, rdfType, "${baoNS}BAO_0000015")
+        rdf.addDataProperty(store, assayIRI, "${dcNS}title", "Zeta potential")
+        rdf.addObjectProperty(store, assayIRI, "${baoNS}BAO_0000209", measurementGroupIRI)
+        rdf.addObjectProperty(store, assayIRI, "${dctNS}source", artIRI)
         rdf.addObjectProperty(store, enmIRI, "${oboNS}BFO_0000056", measurementGroupIRI)
   
         // the measurement group
@@ -320,6 +342,6 @@ output = ui.newFile(outputFilename, rdf.asTurtle(store) )
 println "Materials: $materialCounter"
 println "Assays: $assayCount"
 println "  of which TOX: $toxCount"
-println "Citations: $citations"
+println "Citations: $articleCounter"
 
 
