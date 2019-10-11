@@ -69,7 +69,7 @@ nanomaterials = [
     core : [ label : "CuO", smiles : "[Cu]=O" ]
   ],
   "Cu2O" : [
-    iri : "iri http://purl.obolibrary.org/obo/CHEBI_134402",
+    iri : "http://purl.obolibrary.org/obo/CHEBI_134402",
     core : [ label : "Cu2O", smiles : "[Cu]O[Cu]" ]
   ],
   "Carbon Nanotubes" : [
