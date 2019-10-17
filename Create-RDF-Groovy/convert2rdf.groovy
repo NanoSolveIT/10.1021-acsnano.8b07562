@@ -79,6 +79,9 @@ nanomaterials = [
     iri : "http://purl.bioontology.org/ontology/npo#NPO_943",
     core : [ label : "carbon", smiles : "[C]" ]
   ],
+  "Dendrimer" : [
+    iri : "http://purl.bioontology.org/ontology/npo#NPO_279"
+  ],
   "Hydroxyapatite" : [
     iri : "http://purl.bioontology.org/ontology/npo#NPO_1568"
   ],
@@ -92,12 +95,24 @@ nanomaterials = [
   "Polystyrene" : [
     iri: "http://purl.enanomapper.org/onto/ENM_9000008"
   ],
+  "Pt" : [
+    iri: "http://purl.obolibrary.org/obo/CHEBI_50831",
+    core : [ label : "Pt", smiles : "[Pt]" ]
+  ],
   "QDs" : [
     iri : "http://purl.bioontology.org/ontology/npo#NPO_589",
+  ],
+  "Se" : [
+    iri : "http://purl.enanomapper.org/onto/ENM_9000244",
+    core : [ label : "Se", smiles : "[Se]" ]
   ],
   "SiO2" : [
     iri : "http://purl.bioontology.org/ontology/npo#NPO_1373",
     core : [ label : "SiO2", smiles : "O=[Si]=O" ]
+  ],
+  "Ti" : [
+    iri : "http://purl.enanomapper.org/onto/ENM_9000245",
+    core : [ label : "Ti", smiles : "[Ti]" ]
   ],
   "TiO2" : [
     iri : "http://purl.obolibrary.org/obo/CHEBI_51050",
