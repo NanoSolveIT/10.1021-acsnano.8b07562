@@ -150,18 +150,24 @@ rdf.addDataProperty(store, datasetIRI, "${dctNS}description", "RDF version of th
 rdf.addDataProperty(store, datasetIRI, "${dctNS}publisher", "Egon Willighagen (H2020 NanoSolveIT)")
 rdf.addObjectProperty(store, datasetIRI, "${dctNS}license", "https://creativecommons.org/publicdomain/zero/1.0/")
 
+prevCellLine = null
+prevTest = null
+prevMetric = null
+
 assayCount = 0;
 toxCount = 0;
 citations = 0;
 articleCounter = 0
+materialCounter = 0
 data = excel.getSheet(inputFilename, 0, true)
-//for (i in 1..data.rowCount) {
-for (i in 1..500) {
+for (i in 1..data.rowCount) {
   newMaterial = false
+  newAssay = false
   
   // the nanomaterial
   name = data.get(i, "Nanoparticle")
   coating = data.get(i, "coat")
+  if (coating != null) coating = coating.trim()
 
   // the diameter
   diameter = data.get(i, "Diameter (nm)")
@@ -173,14 +179,16 @@ for (i in 1..500) {
 
   // unique id
   if (data.get(i, "Particle ID") == "") continue
-  uniqueKey = Double.valueOf(data.get(i, "Particle ID")).intValue()
+  particleID = Double.valueOf(data.get(i, "Particle ID")).intValue()
+  uniqueKey = "" + particleID + "_" + name + "_" + coating + "_" + diameter.trim()
 
   if (materials.containsKey(uniqueKey)) {
-    materialCounter = materials.get(uniqueKey)
+    enmIRI = materials.get(uniqueKey)
   } else {
     newMaterial = true;
-    materialCounter = uniqueKey;
-    materials.put(uniqueKey, uniqueKey);
+    materialCounter++
+    enmIRI = "${metaNS}m$materialCounter"
+    materials.put(uniqueKey, enmIRI);
   }
   
   doi = artTitle.trim()
@@ -196,8 +204,13 @@ for (i in 1..500) {
 
   if (newMaterial) {
     if (nanomaterials[name]) {
+      // println "enm ${uniqueKey} / ${particleID}"
+      newAssay = true
+      prevCellLine = null
+      prevTest = null
+      prevMetric = null
+
       // the next material
-      enmIRI = "${metaNS}m$materialCounter"
       rdf.addObjectProperty(store, enmIRI, rdfType, chebi59999)
       rdf.addObjectProperty(store, enmIRI, "${dctNS}source" , datasetIRI)
       rdf.addDataProperty(store, enmIRI, rdfsLabel, name)
@@ -354,6 +367,57 @@ for (i in 1..500) {
     }
   }
 
+  // now create triples for tox measurements
+  if (nanomaterials[name]) {
+    cellLine = data.get(i, "Cells")
+    if (cellLine != prevCellLine) { prevCellLine = cellLine; newAssay = true }
+    test = data.get(i, "Test")
+    if (test != prevTest) { prevTest = test; newAssay = true }
+    metric = data.get(i, "Biochemical metric")
+    if (metric != prevMetric) { prevMetric = metric; newAssay = true }
+
+    concentration = data.get(i, "Concentration μM")
+    viability = data.get(i, "% Cell viability")
+    exposure = data.get(i, "Exposure time (h)")
+    species1 = data.get(i, "Human(H)/Animal(A) cells")
+    species2 = data.get(i, "Animal?")
+    species = (species1 == "H" ? "Human" : species2.trim())
+
+    if (newAssay) {
+      endpointCounter = 0
+      println "New assay: #${materialCounter} ${name}. ${cellLine}, ${exposure}, ${test}, ${metric}"
+      
+      assayCount++
+      assayIRI = "${enmIRI}_toxAssay" + assayCount
+      measurementGroupIRI = "${enmIRI}_toxMeasurementGroup" + assayCount
+
+      toxCount++
+
+      // the assay
+      rdf.addObjectProperty(store, assayIRI, rdfType, "${baoNS}BAO_0000202")
+      assayTitle = "${test} (${cellLine}, ${species})"
+      rdf.addDataProperty(store, assayIRI, "${dcNS}title", assayTitle)
+      rdf.addObjectProperty(store, assayIRI, "${baoNS}BAO_0000209", measurementGroupIRI)
+      rdf.addObjectProperty(store, assayIRI, "${dctNS}source", artIRI)
+      rdf.addObjectProperty(store, enmIRI, "${oboNS}BFO_0000056", measurementGroupIRI)
+  
+      // the measurement group
+      rdf.addObjectProperty(store, measurementGroupIRI, rdfType, "${baoNS}BAO_0000040")
+    }
+    
+    // the endpoint
+    endpointCounter++
+    endpointIRI = "${measurementGroupIRI}_toxEndpoint${endpointCounter}"
+    rdf.addObjectProperty(store, measurementGroupIRI, "${oboNS}OBI_0000299", endpointIRI)
+
+    rdf.addObjectProperty(store, endpointIRI, rdfType, "${npoNS}NPO_1302")
+    rdf.addObjectProperty(store, endpointIRI, "${oboNS}IAO_0000136", enmIRI)
+    rdf.addDataProperty(store, endpointIRI, rdfsLabel, "Cell viability")
+    rdf.addTypedDataProperty(store, endpointIRI, "${ssoNS}has-value", viability, "${xsdNS}double")
+    rdf.addDataProperty(store, endpointIRI, "${ssoNS}has-unit", "%")
+
+  }
+
 }
 
 if (ui.fileExists(logFilename)) ui.remove(logFilename)
@@ -362,7 +426,7 @@ logfile = ui.newFile(logFilename, logMessages )
 if (ui.fileExists(outputFilename)) ui.remove(outputFilename)
 output = ui.newFile(outputFilename, rdf.asTurtle(store) )
 
-println "Materials: $materialCounter"
+println "Materials: ${materials.size()}"
 println "Assays: $assayCount"
 println "  of which TOX: $toxCount"
 println "Citations: $articleCounter"
