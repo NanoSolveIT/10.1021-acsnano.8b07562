@@ -71,6 +71,10 @@ nanomaterials = [
     iri : "http://purl.bioontology.org/ontology/npo#NPO_1544",
     core : [ label : "CuO", smiles : "[Cu]=O" ]
   ],
+  "CuS" : [
+    iri : "http://purl.enanomapper.org/onto/ENM_9000246",
+    core : [ label : "CuS", smiles : "[Cu]=S" ]
+  ],
   "Cu2O" : [
     iri : "http://purl.obolibrary.org/obo/CHEBI_134402",
     core : [ label : "Cu2O", smiles : "[Cu]O[Cu]" ]
@@ -140,6 +144,15 @@ coatings = [
   "Citrate" : [
     label : "citrate",
     smiles : "C(C(=O)O)C(CC(=O)O)(C(=O)O)O"
+  ],
+  "Dextran" : [
+    label : "dextran"
+  ],
+  "PEG" : [
+    label : "polyethylene glycol"
+  ],
+  "PEI" : [
+    label : "polyetherimide"
   ]
 ]
 
@@ -232,6 +245,7 @@ for (i in 1..data.rowCount) {
       }
 
       if (coating) {
+        if (coating == "PEG to the PEI") coating = "PEG PEI"
         coatingComponents = coating.split(" ")
         coatingCounter = 0
         for (component in coatingComponents) {
@@ -243,8 +257,10 @@ for (i in 1..data.rowCount) {
             rdf.addObjectProperty(store, coatingIRI, rdfType, "${npoNS}NPO_1367")
             rdf.addObjectProperty(store, coatingIRI, "${ssoNS}CHEMINF_000200", smilesIRI)
             rdf.addObjectProperty(store, smilesIRI, rdfType, "${ssoNS}CHEMINF_000018")
-            rdf.addDataProperty(store, smilesIRI, "${ssoNS}SIO_000300", coatings[component].smiles)
             rdf.addDataProperty(store, smilesIRI, rdfsLabel, coatings[component].label)
+            if (coatings[component].smiles) {
+              rdf.addDataProperty(store, smilesIRI, "${ssoNS}SIO_000300", coatings[component].smiles)
+            }
           } else {
             logMessages += "Unrecognized coating component: $component\n"
           }
