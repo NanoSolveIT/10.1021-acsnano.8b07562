@@ -1,0 +1,5 @@
+PREFIX bibo: <http://purl.org/ontology/bibo/>
+
+SELECT (COUNT(DISTINCT ?art) AS ?count) WHERE {
+  ?art a bibo:Article
+}

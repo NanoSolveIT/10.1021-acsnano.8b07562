@@ -1,0 +1,5 @@
+PREFIX bao: <http://www.bioassayontology.org/bao#>
+
+SELECT (COUNT(DISTINCT ?type) AS ?count) WHERE {
+  ?assay bao:BAO_0000209 [] ; a ?type .
+}
