@@ -47,6 +47,21 @@ rdf.addPrefix(store, "owl", owlNS)
 rdf.addPrefix(store, "sso", ssoNS)
 rdf.addPrefix(store, "void", voidNS)
 
+bioassays = [
+  "ATPLite" : [
+    iri : "${baoNS}BAO_0010001"
+  ],
+  "LDH" : [
+    iri : "${npoNS}NPO_1709"
+  ],
+  "Live/Dead" : [
+    iri : "${baoNS}BAO_00030099" // general cell viability assay
+  ],
+  "MTT" : [
+    iri : "${npoNS}NPO_1911"
+  ],
+]
+
 nanomaterials = [
   "Ag" : [
     iri : "http://purl.bioontology.org/ontology/npo#NPO_1384",
@@ -410,7 +425,13 @@ for (i in 1..data.rowCount) {
       toxCount++
 
       // the assay
-      rdf.addObjectProperty(store, assayIRI, rdfType, "${baoNS}BAO_0000202")
+      assayType = "${baoNS}BAO_0003009"
+      if (bioassays[test]) {
+        assayType = bioassays[test].iri
+      } else {
+        logMessages += "Unrecognized bioassay type: $test\n"
+      }
+      rdf.addObjectProperty(store, assayIRI, rdfType, "${assayType}")
       assayTitle = "${test} (${cellLine}, ${species})"
       rdf.addDataProperty(store, assayIRI, "${dcNS}title", assayTitle)
       rdf.addObjectProperty(store, assayIRI, "${baoNS}BAO_0000209", measurementGroupIRI)
