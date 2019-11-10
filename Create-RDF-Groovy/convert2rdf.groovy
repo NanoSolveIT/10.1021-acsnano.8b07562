@@ -14,6 +14,7 @@ logFilename = "/Create-RDF-Groovy/conversion.log"
 logMessages = ""
 
 baoNS = "http://www.bioassayontology.org/bao#"
+biboNS = "http://purl.org/ontology/bibo/"
 citoNS = "http://purl.org/net/cito/"
 dcNS = "http://purl.org/dc/elements/1.1/"
 dctNS = "http://purl.org/dc/terms/"
@@ -36,6 +37,7 @@ chebi59999 = "http://purl.obolibrary.org/obo/CHEBI_59999"
 
 store = rdf.createInMemoryStore()
 rdf.addPrefix(store, "bao", baoNS)
+rdf.addPrefix(store, "bibo", biboNS)
 rdf.addPrefix(store, "cito", citoNS)
 rdf.addPrefix(store, "dc", dcNS)
 rdf.addPrefix(store, "dct", dctNS)
@@ -360,6 +362,7 @@ for (i in 1..data.rowCount) {
       articleCounter++
       articles.add(doi)
       artIRI = "${metaNS}ref$articleCounter"
+      rdf.addObjectProperty(store, artIRI, rdfType, "${biboNS}Article")
       rdf.addDataProperty(store, artIRI, "${dcNS}title" , doi)
       rdf.addObjectProperty(store, artIRI, "${owlNS}sameAs" , "https://doi.org/${doi}")
     }
