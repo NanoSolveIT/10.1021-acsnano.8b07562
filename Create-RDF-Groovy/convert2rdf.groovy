@@ -527,7 +527,7 @@ for (i in 1..data.rowCount) {
     exposure = data.get(i, "Exposure time (h)")
     species1 = data.get(i, "Human(H)/Animal(A) cells")
     species2 = data.get(i, "Animal?")
-    species = (species1 == "H" ? "Human" : species2.trim())
+    species = (species1 == "H" ? "Human" : (species2 != null ? species2.trim() : ""))
 
     if (newAssay) {
       endpointCounter = 0
