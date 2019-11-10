@@ -183,6 +183,16 @@ nanomaterials = [
 ]
 
 coatings = [
+  "3-mercaptopropionic" : [
+    label : "3-mercaptopropionic acid",
+    smiles : "OC(=O)CCS"
+  ],
+  "alginate" : [
+    label : "alginic acid"
+  ],
+  "BSA" : [
+    label : "BSA"
+  ],
   "l-cysteine" : [
     label : "l-cysteine",
     smiles : "N[C@@H](CS)C(O)=O"
@@ -195,18 +205,62 @@ coatings = [
     label : "COOH",
     smiles : "C(=O)O"
   ],
+  "Chitosan" : [
+    label : "chitosan"
+  ],
   "Citrate" : [
     label : "citrate",
     smiles : "C(C(=O)O)C(CC(=O)O)(C(=O)O)O"
   ],
+  "cysteamine" : [
+    label : "cysteamine",
+    smiles : "SCCN"
+  ],
+  "D-penicillamin" : [
+    label : "D-penicillamin",
+    smiles : "CC(C)(S)[C@@H](N)C(O)=O"
+  ],
   "Dextran" : [
     label : "dextran"
+  ],
+  "dimercaptosuccinic" : [
+    label : "dimercaptosuccinic acid",
+    smiles : "OC(=O)[C@@H](S)[C@@H](S)C(O)=O"
+  ],
+  "folic_acid" : [
+    label : "folic acid",
+    smiles : "Nc1nc2ncc(CNc3ccc(cc3)C(=O)N[C@@H](CCC(O)=O)C(O)=O)nc2c(=O)[nH]1"
+  ],
+  "hyaluronic_acid" : [
+    label : "hyaluronic acid"
+  ],
+  "MeOH" : [
+    label : "Methanol",
+    smiles : "CO"
+  ],
+  "NH2" : [
+    label : "amine",
+    smiles : "N"
   ],
   "PEG" : [
     label : "polyethylene glycol"
   ],
   "PEI" : [
     label : "polyetherimide"
+  ],
+  "PVP" : [
+    label : "poly(vinylpyrrolidone)"
+  ],
+  "SiO2" : [
+    label : "SiO2",
+    smiles : "O=[Si]=O"
+  ],
+  "silica" : [
+    label : "SiO2",
+    smiles : "O=[Si]=O"
+  ],
+  "Zn" : [
+    label : "Zn", smiles : "[Zn]"
   ]
 ]
 
@@ -300,6 +354,18 @@ for (i in 1..data.rowCount) {
 
       if (coating) {
         if (coating == "PEG to the PEI") coating = "PEG PEI"
+        if (coating == "PEG-NH2") coating = "PEG NH2"
+        if (coating == "PEG-OCH3") coating = "PEG MeOH"
+        if (coating == "PEG-COOH") coating = "PEG COOH"
+        if (coating == "folic acid with intermediate inorganic (silica) coating") coating = "folic_acid SiO2"
+        if (coating == "folic acid with intermediate organic (PEG) coating") coating = "folic_acid PEG"
+        if (coating == "Folic acid") coating = "folic_acid"
+        if (coating == "D-penicillamine (NH2/COOH)") coating = "D-penicillamin"
+        if (coating == "Zn then cysteamine") coating = "Zn cysteamine"
+        if (coating == "Hyaluronic acid") coating = "hyaluronic_acid"
+        if (coating == "3-mercaptopropionic acid (COOH)") coating = "3-mercaptopropionic"
+        if (coating == "Citrate and PVP") coating = "Citrate PVP"
+
         coatingComponents = coating.split(" ")
         coatingCounter = 0
         for (component in coatingComponents) {
@@ -307,17 +373,27 @@ for (i in 1..data.rowCount) {
             coatingCounter++
             coatingIRI = "${enmIRI}_coating${coatingCounter}"
             rdf.addObjectProperty(store, enmIRI, "${npoNS}has_part", coatingIRI)
-            smilesIRI = "${coatingIRI}_smiles"
             rdf.addObjectProperty(store, coatingIRI, rdfType, "${npoNS}NPO_1367")
             rdf.addObjectProperty(store, coatingIRI, "${ssoNS}CHEMINF_000200", smilesIRI)
             rdf.addObjectProperty(store, smilesIRI, rdfType, "${ssoNS}CHEMINF_000018")
             rdf.addDataProperty(store, smilesIRI, rdfsLabel, coatings[component].label)
             if (coatings[component].smiles) {
+            smilesIRI = "${coatingIRI}_smiles"
               rdf.addDataProperty(store, smilesIRI, "${ssoNS}SIO_000300", coatings[component].smiles)
             }
           } else {
             logMessages += "Unrecognized coating component: $component\n"
           }
+        }
+        if (coatingCounter == 0) { // nothing recognized; add coating as separate coating
+          coatingCounter++
+          coatingIRI = "${enmIRI}_coating${coatingCounter}"
+          rdf.addObjectProperty(store, enmIRI, "${npoNS}has_part", coatingIRI)
+          smilesIRI = "${coatingIRI}_smiles"
+          rdf.addObjectProperty(store, coatingIRI, rdfType, "${npoNS}NPO_1367")
+          rdf.addObjectProperty(store, coatingIRI, "${ssoNS}CHEMINF_000200", smilesIRI)
+          rdf.addObjectProperty(store, smilesIRI, rdfType, "${ssoNS}CHEMINF_000018")
+          rdf.addDataProperty(store, smilesIRI, rdfsLabel, coating)
         }
       }
 
