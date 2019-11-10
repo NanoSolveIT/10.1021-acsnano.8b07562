@@ -1,4 +1,4 @@
-# eNanoMapper TTL for ACS Nano paper
+# eNanoMapper RDF (Turtle) for ACS Nano paper
 
 The purpose of this project is to convert the supplementary information of this ACS Nano paper:
 
