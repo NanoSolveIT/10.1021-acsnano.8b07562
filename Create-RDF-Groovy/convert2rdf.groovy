@@ -48,8 +48,29 @@ rdf.addPrefix(store, "sso", ssoNS)
 rdf.addPrefix(store, "void", voidNS)
 
 bioassays = [
+  "Alamar blue" : [
+    iri : "${baoNS}BAO_0010042" // general metabolomic profiling assay
+  ],
+  "Alamar Blue" : [
+    iri : "${baoNS}BAO_0010042" // general metabolomic profiling assay
+  ],
+  "ApoTox­Glo™ Triplex" : [
+    iri : "${baoNS}BAO_0002764"
+  ],
+  "ATP" : [
+    iri : "${baoNS}BAO_0010001"
+  ],
   "ATPLite" : [
     iri : "${baoNS}BAO_0010001"
+  ],
+  "CellTiter­Blue" : [
+    iri : "${baoNS}BAO_0140012" // FIXME: really a kit
+  ],
+  "CellTiter­Glo" : [
+    iri : "${baoNS}BAO_00030099" // general cell viability assay
+  ],
+  "CytoTox­One™" : [
+    iri : "${npoNS}NPO_1709"
   ],
   "LDH" : [
     iri : "${npoNS}NPO_1709"
@@ -57,8 +78,29 @@ bioassays = [
   "Live/Dead" : [
     iri : "${baoNS}BAO_00030099" // general cell viability assay
   ],
+  "MTS" : [
+    iri : "${baoNS}BAO_0002456"
+  ],
   "MTT" : [
     iri : "${npoNS}NPO_1911"
+  ],
+    "Modified MTT assay (MTT­formazan ppt dissolving by ethanol)" : [
+      iri : "${npoNS}NPO_1911"
+    ],
+    "Modified MTT assay (MTT­formazan ppt dissolving by isopropanol/HCl)" : [
+      iri : "${npoNS}NPO_1911"
+    ],
+  "NR" : [ // neutral red
+    iri : "${baoNS}BAO_00030099" // general cell viability assay
+  ],
+  "Vialight" : [
+    iri : "${baoNS}BAO_0003083" // FIXME: really a kit
+  ],
+  "WST­1" : [
+    iri : "${baoNS}BAO_0140018" // FIXME: really a kit
+  ],
+  "XTT" : [
+    iri : "${baoNS}BAO_0002458" // FIXME: really a kit
   ],
 ]
 
@@ -517,7 +559,7 @@ for (i in 1..data.rowCount) {
   if (nanomaterials[name]) {
     cellLine = data.get(i, "Cells")
     if (cellLine != prevCellLine) { prevCellLine = cellLine; newAssay = true }
-    test = data.get(i, "Test")
+    test = data.get(i, "Test").trim()
     if (test != prevTest) { prevTest = test; newAssay = true }
     metric = data.get(i, "Biochemical metric")
     if (metric != prevMetric) { prevMetric = metric; newAssay = true }
