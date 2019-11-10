@@ -75,12 +75,39 @@ nanomaterials = [
     iri : "http://purl.bioontology.org/ontology/npo#NPO_401",
     core : [ label : "silver", smiles : "[Au]" ]
   ],
+  "Bi" : [
+    iri : "http://purl.enanomapper.org/onto/ENM_9000247",
+    core : [ label : "bismuth", smiles : "[Bi]" ]
+  ],
+  "Carbon Nanotubes" : [
+    iri : "http://purl.bioontology.org/ontology/npo#NPO_943",
+    core : [ label : "carbon", smiles : "[C]" ]
+  ],
+  "Carbon NP" : [
+    iri : "http://purl.obolibrary.org/obo/CHEBI_133602",
+    core : [ label : "C", smiles : "C" ]
+  ],
+  "CdO" : [
+    iri : "http://purl.enanomapper.org/onto/ENM_9000250",
+    core : [ label : "CdO", smiles : "[Cd]=O" ]
+  ],
   "CeO2" : [
     iri : "http://purl.enanomapper.org/onto/ENM_9000006",
     core : [ label : "CeO2", smiles : "O=[Ce]=O" ]
   ],
   "Chitosan" : [
     iri : "http://purl.bioontology.org/ontology/npo#NPO_261"
+  ],
+  "Co" : [
+    iri : "http://purl.enanomapper.org/onto/ENM_9000248",
+    core : [ label : "Co", smiles : "Co" ]
+  ],
+  "Co3O4" : [
+    iri : "http://purl.enanomapper.org/onto/ENM_9000254"
+  ],
+  "Cr" : [
+    iri : "http://purl.enanomapper.org/onto/ENM_9000249",
+    core : [ label : "Cr", smiles : "Cr" ]
   ],
   "CuO" : [
     iri : "http://purl.bioontology.org/ontology/npo#NPO_1544",
@@ -94,10 +121,6 @@ nanomaterials = [
     iri : "http://purl.obolibrary.org/obo/CHEBI_134402",
     core : [ label : "Cu2O", smiles : "[Cu]O[Cu]" ]
   ],
-  "Carbon Nanotubes" : [
-    iri : "http://purl.bioontology.org/ontology/npo#NPO_943",
-    core : [ label : "carbon", smiles : "[C]" ]
-  ],
   "Dendrimer" : [
     iri : "http://purl.bioontology.org/ontology/npo#NPO_279"
   ],
@@ -110,6 +133,22 @@ nanomaterials = [
   ],
   "Liposomes" : [
     iri: "http://purl.bioontology.org/ontology/npo#NPO_719"
+  ],
+  "MgO" : [
+    iri: "http://purl.enanomapper.org/onto/ENM_9000252",
+    core : [ label : "MgO", smiles : "[Mg]=O" ]
+  ],
+  "MnO" : [
+    iri: "http://purl.enanomapper.org/onto/ENM_9000251",
+    core : [ label : "MnO", smiles : "[Mn]=O" ]
+  ],
+  "Mo": [
+    iri: "http://purl.enanomapper.org/onto/ENM_9000253",
+    core : [ label : "Mo", smiles : "[Mo]" ]
+  ],
+  "PLGA" : [
+    iri : "http://purl.enanomapper.org/onto/ENM_9000249",
+    core : [ label : "γ-poly(L-glutamic acid) polymer", smiles : "C(CC(=O)O)[C@@H](C(=O)O)N" ]
   ],
   "Polystyrene" : [
     iri: "http://purl.enanomapper.org/onto/ENM_9000008"
