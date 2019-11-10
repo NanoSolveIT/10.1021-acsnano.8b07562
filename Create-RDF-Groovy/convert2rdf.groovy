@@ -410,7 +410,7 @@ for (i in 1..data.rowCount) {
     endpointIRI = "${measurementGroupIRI}_toxEndpoint${endpointCounter}"
     rdf.addObjectProperty(store, measurementGroupIRI, "${oboNS}OBI_0000299", endpointIRI)
 
-    rdf.addObjectProperty(store, endpointIRI, rdfType, "${npoNS}NPO_1302")
+    rdf.addObjectProperty(store, endpointIRI, rdfType, "${npoNS}NPO_1816")
     rdf.addObjectProperty(store, endpointIRI, "${oboNS}IAO_0000136", enmIRI)
     rdf.addDataProperty(store, endpointIRI, rdfsLabel, "Cell viability")
     rdf.addTypedDataProperty(store, endpointIRI, "${ssoNS}has-value", viability, "${xsdNS}double")
