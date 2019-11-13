@@ -379,7 +379,7 @@ for (i in 1..data.rowCount) {
       // the next material
       rdf.addObjectProperty(store, enmIRI, rdfType, chebi59999)
       rdf.addObjectProperty(store, enmIRI, "${dctNS}source" , datasetIRI)
-      rdf.addDataProperty(store, enmIRI, rdfsLabel, name)
+      rdf.addDataProperty(store, enmIRI, rdfsLabel, name + (diameter != null ? " (${diameter} nm)" : ""))
 
       // the components (they all have a core)
       coreIRI = "${enmIRI}_core"
