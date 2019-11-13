@@ -619,6 +619,8 @@ for (i in 1..data.rowCount) {
     rdf.addDataProperty(store, endpointIRI, rdfsLabel, "Cell viability")
     rdf.addTypedDataProperty(store, endpointIRI, "${ssoNS}has-value", viability, "${xsdNS}double")
     rdf.addDataProperty(store, endpointIRI, "${ssoNS}has-unit", "%")
+    if (doi.startsWith("10."))
+      rdf.addObjectProperty(store, endpointIRI, "${citoNS}usesDataFrom", "https://doi.org/${doi}")
 
   }
 
