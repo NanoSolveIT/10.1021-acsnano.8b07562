@@ -385,6 +385,7 @@ for (i in 1..data.rowCount) {
       coreIRI = "${enmIRI}_core"
       rdf.addObjectProperty(store, enmIRI, "${npoNS}has_part", coreIRI)
       rdf.addObjectProperty(store, coreIRI, rdfType, "${npoNS}NPO_1597")
+      rdf.addDataProperty(store, coreIRI, rdfsLabel, name)
 
       if (nanomaterials[name].iri) {
         rdf.addObjectProperty(store, enmIRI, "${dctNS}type", nanomaterials[name].iri)
@@ -398,6 +399,7 @@ for (i in 1..data.rowCount) {
       }
 
       if (coating) {
+        origCoating = coating
         if (coating == "PEG to the PEI") coating = "PEG PEI"
         if (coating == "PEG-NH2") coating = "PEG NH2"
         if (coating == "PEG-OCH3") coating = "PEG MeOH"
@@ -418,7 +420,8 @@ for (i in 1..data.rowCount) {
             coatingCounter++
             coatingIRI = "${enmIRI}_coating${coatingCounter}"
             rdf.addObjectProperty(store, enmIRI, "${npoNS}has_part", coatingIRI)
-            rdf.addObjectProperty(store, coatingIRI, rdfType, "${npoNS}NPO_1367")
+            rdf.addObjectProperty(store, coatingIRI, rdfType, "${npoNS}NPO_1367") // NPO_1367 = coating
+            rdf.addDataProperty(store, coatingIRI, rdfsLabel, component)
             rdf.addObjectProperty(store, coatingIRI, "${ssoNS}CHEMINF_000200", smilesIRI)
             rdf.addObjectProperty(store, smilesIRI, rdfType, "${ssoNS}CHEMINF_000018")
             rdf.addDataProperty(store, smilesIRI, rdfsLabel, coatings[component].label)
@@ -435,7 +438,8 @@ for (i in 1..data.rowCount) {
           coatingIRI = "${enmIRI}_coating${coatingCounter}"
           rdf.addObjectProperty(store, enmIRI, "${npoNS}has_part", coatingIRI)
           smilesIRI = "${coatingIRI}_smiles"
-          rdf.addObjectProperty(store, coatingIRI, rdfType, "${npoNS}NPO_1367")
+          rdf.addObjectProperty(store, coatingIRI, rdfType, "${npoNS}NPO_1367") // NPO_1367 = coating
+          rdf.addDataProperty(store, coatingIRI, rdfsLabel, origCoating)
           rdf.addObjectProperty(store, coatingIRI, "${ssoNS}CHEMINF_000200", smilesIRI)
           rdf.addObjectProperty(store, smilesIRI, rdfType, "${ssoNS}CHEMINF_000018")
           rdf.addDataProperty(store, smilesIRI, rdfsLabel, coating)
@@ -453,7 +457,7 @@ for (i in 1..data.rowCount) {
         endpointIRI = "${measurementGroupIRI}_sizeEndpoint"
 
         // the assay
-        rdf.addObjectProperty(store, assayIRI, rdfType, "${baoNS}BAO_0000015")
+        rdf.addObjectProperty(store, assayIRI, rdfType, "${baoNS}BAO_0000015") // BAO_0000015 = bioassay
         rdf.addDataProperty(store, assayIRI, "${dcNS}title", "Diameter Assay")
         rdf.addObjectProperty(store, assayIRI, "${baoNS}BAO_0000209", measurementGroupIRI)
         rdf.addObjectProperty(store, assayIRI, "${dctNS}source", artIRI)
@@ -465,6 +469,7 @@ for (i in 1..data.rowCount) {
 
         // the endpoint
         rdf.addObjectProperty(store, endpointIRI, rdfType, "${npoNS}NPO_1539")
+        rdf.addObjectProperty(store, endpointIRI, rdfType, "${baoNS}BAO_0000179")
         rdf.addObjectProperty(store, endpointIRI, "${oboNS}IAO_0000136", enmIRI)
         rdf.addDataProperty(store, endpointIRI, rdfsLabel, "Diameter")
         if (doi.startsWith("10."))
@@ -520,6 +525,7 @@ for (i in 1..data.rowCount) {
   
         // the endpoint
         rdf.addObjectProperty(store, endpointIRI, rdfType, "${npoNS}NPO_1302")
+        rdf.addObjectProperty(store, endpointIRI, rdfType, "${baoNS}BAO_0000179")
         rdf.addObjectProperty(store, endpointIRI, "${oboNS}IAO_0000136", enmIRI)
         rdf.addDataProperty(store, endpointIRI, rdfsLabel, "Zeta potential")
         if (doi.startsWith("10."))
@@ -608,6 +614,7 @@ for (i in 1..data.rowCount) {
     rdf.addObjectProperty(store, measurementGroupIRI, "${oboNS}OBI_0000299", endpointIRI)
 
     rdf.addObjectProperty(store, endpointIRI, rdfType, "${npoNS}NPO_1816")
+    rdf.addObjectProperty(store, endpointIRI, rdfType, "${baoNS}BAO_0000179")
     rdf.addObjectProperty(store, endpointIRI, "${oboNS}IAO_0000136", enmIRI)
     rdf.addDataProperty(store, endpointIRI, rdfsLabel, "Cell viability")
     rdf.addTypedDataProperty(store, endpointIRI, "${ssoNS}has-value", viability, "${xsdNS}double")
